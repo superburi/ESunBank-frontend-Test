@@ -36,7 +36,7 @@
     },
     mounted() {
       this.fetchBooks()
-      this.fetchUserInfo()
+      // this.fetchUserInfo()
     },
     methods: {
       async fetchBooks() {
@@ -54,19 +54,19 @@
         // 動態路由帶上 isbn
         this.$router.push(`/borrow/${isbn}`)
       },
-      async fetchUserInfo()  {
-      try {
-          const response = await axios.get('http://localhost:8080/auth/me', {
-            withCredentials: true
-          })
-          // 後端回傳 { user_id:3, user_name:'vicky', loanedBooks:['19700821'], ... }
-          // 把 loanedBooks 存起來
-          this.loanedBooks = response.data.loanedBooks || []
-        } catch (error) {
-          console.error('未登入或 JWT 失效', error)
-          loanedBooks.value = []
-        }
-      }
+      // async fetchUserInfo()  {
+      // try {
+      //     const response = await axios.get('http://localhost:8080/auth/me', {
+      //       withCredentials: true
+      //     })
+      //     // 後端回傳 { user_id:3, user_name:'vicky', loanedBooks:['19700821'], ... }
+      //     // 把 loanedBooks 存起來
+      //     this.loanedBooks = response.data.loanedBooks || []
+      //   } catch (error) {
+      //     console.error('未登入或 JWT 失效', error)
+      //     loanedBooks.value = []
+      //   }
+      // }
 
     },
   }
