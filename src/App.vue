@@ -1,6 +1,46 @@
 <script setup>
     
-    import { ref } from "vue";
+    import { ref, onMounted } from "vue";
+    import { useRouter } from "vue-router";
+    import axios from "axios";
+
+    // 使用 Vue 3 的 `ref` 來管理使用者狀態
+    const user = ref(null);
+    const router = useRouter();
+
+    // 檢查使用者是否已登入（從後端取得用戶資訊）
+    const checkAuth = async () => {
+    try {
+        const response = await axios.get("http://localhost:8080/auth/me", {
+        withCredentials: true, // 讓請求自動帶上 Cookie
+        });
+        user.value = response.data; // 例如 { userId: 1, phoneNumber: "0912XXX" }
+        console.log(response.data);
+    } catch (error) {
+        console.error("未登入或 JWT 失效", error);
+        user.value = null;
+    }
+    };
+
+    // 登出方法
+    const logout = async () => {
+    try {
+        const response = await axios.post("http://localhost:8080/auth/logout", 
+        {}, { withCredentials: true });
+        if ( response.status === 200 ) {
+            alert(response.data)
+            user.value = null;
+            
+        }
+    } catch (error) {
+        console.error("登出失敗", error);
+    }
+    };
+
+    // 元件載入時檢查登入狀態
+    onMounted(() => {
+    checkAuth();
+    });
     
 
 </script>
@@ -9,10 +49,16 @@
     <div id="app">
     <!-- 頂部導覽列 -->
     <header class="app-header">
-      <div class="app-logo">線上書籍借閱</div>
+      <router-link to="/" class="app-logo">線上書籍借閱</router-link>
       <nav class="app-nav">
-        <!-- 右上角登入按鈕，如果尚未登入就顯示；若你有登入狀態，可再判斷顯示其他按鈕 -->
-        <router-link to="/login" class="login-btn">登入</router-link>
+        <!-- ✅ 判斷 user 變數是否有值 -->
+        <template v-if="user">
+          <span class="user-info">你好 : {{ user.user_name }}</span>
+          <button class="logout-btn" @click="logout">登出</button>
+        </template>
+        <template v-else>
+          <router-link to="/login" class="login-btn">登入</router-link>
+        </template>
       </nav>
     </header>
 
@@ -22,18 +68,7 @@
     </main>
   </div>
 
-    <!--
-    <div>
-        <nav>
-            <router-link to="/">首頁</router-link> |
-            <router-link to="/login">登入</router-link> |
-            <router-link to="/register">註冊</router-link> |
-            <router-link to="/borrow">借閱</router-link> |
-            <router-link to="/return">還書</router-link>
-        </nav>
-        <router-view></router-view>
-    </div>
-    -->
+
 </template>
 <style scoped>/* scoped 代表 css 只作用在組件中 */
 
@@ -44,11 +79,13 @@
   align-items: center;
   padding: 0.5rem 1rem;
   background-color: #f4f4f4;
+  border-radius: 5px;
 }
 
 .app-logo {
   font-size: 1.5rem;
   font-weight: bold;
+  text-decoration: none;
 }
 
 .app-nav {
@@ -74,6 +111,21 @@
   /* 讓主要內容做置中或其他排版 */
   min-height: calc(100vh - 60px);
   padding: 1rem;
+}
+.user-info {
+  margin-right: 1rem;
+}
+
+.logout-btn {
+  background-color: red;
+  color: white;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.logout-btn:hover {
+  background-color: darkred;
 }
 
 </style>

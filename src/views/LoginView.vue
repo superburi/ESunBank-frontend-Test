@@ -41,17 +41,27 @@ export default {
   methods: {
     async handleLogin() {
       try {
-        const response = await axios.post('http://localhost:3000/api/login', {
-          phone: this.phone,
+        const response = await axios.post('http://localhost:8080/auth/login', {
+          phoneNumber: this.phone,
           password: this.password,
+        }, {
+          withCredentials: true
         })
-        // 根據後端回傳判斷是否登入成功
-        console.log('登入回傳：', response.data)
-        // 如果成功，可以保存 token 或者跳轉頁面
-        // this.$router.push('/')
+
+        if ( response.status === 200 ) { // 如果登入成功
+
+          alert("登入成功！")
+          this.$router.go(-1)
+          
+        }
       } catch (error) {
-        console.error('登入失敗：', error)
-        alert('登入失敗，請檢查帳號密碼或伺服器狀態')
+        if (error.response && error.response.status === 401) {
+          console.error('登入失敗：帳號或密碼錯誤')
+          alert('登入失敗，請檢查帳號或密碼')
+        } else {
+          console.error('登入失敗：', error)
+          alert('登入失敗，請稍後再試')
+        }
       }
     },
     goRegister() {
